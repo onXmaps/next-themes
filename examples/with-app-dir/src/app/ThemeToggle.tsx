@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+
 import { useTheme } from 'next-themes'
 
 export function ThemeToggle() {
@@ -10,11 +10,9 @@ export function ThemeToggle() {
       <label className="mt-16" htmlFor="theme-select">Theme:</label>
       <select 
         id="theme-select"
-        value={theme}
+        value={theme} // @TODO Fix issue with value not propagating correctly on refresh in dark mode only (weird)
         name="themes"
-        onChange={e => {
-          setTheme(e.target.value)
-        }}
+        onChange={e => setTheme(e.target.value)}
       >
         <option value="offroad">Offroad</option>
         <option value="hunt">Hunt</option>
