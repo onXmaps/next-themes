@@ -33,7 +33,9 @@ export interface ThemeProviderProps extends React.PropsWithChildren {
   /** Whether to indicate to browsers which color scheme is used (dark or light) for built-in UI like inputs and buttons */
   enableColorScheme?: boolean | undefined
   /** Key used to store mode setting in localStorage */
-  storageKey?: string | undefined
+  themeStorageKey?: string | undefined
+  /** Key used to store mode setting in localStorage */
+  modeStorageKey?: string | undefined
   /** Default mode name (for v0.0.12 and lower the default was light). If `enableSystem` is false, the default mode is light */
   defaultMode?: string | undefined
   /** HTML attribute modified based on the active mode. Accepts `class`, `data-*` (meaning any data attribute, `data-mode`, `data-color`, etc.), or an array which could include both */

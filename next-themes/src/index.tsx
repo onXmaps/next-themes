@@ -27,16 +27,20 @@ const Theme = ({
   disableTransitionOnChange = false,
   enableSystem = true,
   enableColorScheme = true,
-  storageKey = 'mode',
+  themeStorageKey = 'key',
+  modeStorageKey = 'mode',
   modes = defaultModes,
   defaultMode = enableSystem ? 'system' : 'light',
-  attribute = 'data-mode',
+  attribute = [
+    'data-theme',
+    'data-mode',
+  ],
   value,
   children,
   nonce
 }: ThemeProviderProps) => {
-  const [mode, setModeState] = React.useState(() => getMode(storageKey, defaultMode))
-  const [resolvedMode, setResolvedMode] = React.useState(() => getMode(storageKey))
+  const [mode, setModeState] = React.useState(() => getMode(modeStorageKey, defaultMode))
+  const [resolvedMode, setResolvedMode] = React.useState(() => getMode(modeStorageKey))
   const attrs = !value ? modes : Object.values(value)
 
   const applyMode = React.useCallback(mode => {
@@ -79,13 +83,13 @@ const Theme = ({
   }, [])
 
   const setMode = React.useCallback(
-    theme => {
-      const newTheme = typeof theme === 'function' ? theme(theme) : theme
-      setModeState(newTheme)
+    mode => {
+      const newMode = typeof mode === 'function' ? mode(mode) : mode
+      setModeState(newMode)
 
       // Save to storage
       try {
-        localStorage.setItem(storageKey, newTheme)
+        localStorage.setItem(modeStorageKey, newMode)
       } catch (e) {
         // Unsupported
       }
@@ -119,7 +123,7 @@ const Theme = ({
   // localStorage event handling
   React.useEffect(() => {
     const handleStorage = (e: StorageEvent) => {
-      if (e.key !== storageKey) {
+      if (e.key !== modeStorageKey) {
         return
       }
 
@@ -155,7 +159,7 @@ const Theme = ({
       <ThemeScript
         {...{
           forcedMode,
-          storageKey,
+          modeStorageKey,
           attribute,
           enableSystem,
           enableColorScheme,
@@ -174,7 +178,8 @@ const Theme = ({
 const ThemeScript = React.memo(
   ({
     forcedMode,
-    storageKey,
+    themeStorageKey,
+    modeStorageKey,
     attribute,
     enableSystem,
     enableColorScheme,
@@ -185,7 +190,8 @@ const ThemeScript = React.memo(
   }: Omit<ThemeProviderProps, 'children'> & { defaultMode: string }) => {
     const scriptArgs = JSON.stringify([
       attribute,
-      storageKey,
+      themeStorageKey,
+      modeStorageKey,
       defaultMode,
       forcedMode,
       modes,
