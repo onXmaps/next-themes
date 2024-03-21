@@ -35,7 +35,7 @@ const Theme = ({
   modes = defaultModes,
   defaultTheme = 'offroad',
   defaultMode = enableSystem ? 'system' : 'light',
-  attribute = [
+  attribute = [ // @TODO Reconsider how I want to approach this - separate attributes for theme and mode? Something else?
     'data-theme',
     'data-mode',
   ],

@@ -28,21 +28,21 @@ const localStorageMock: Storage = (() => {
 })()
 
 // HelperComponent to render the theme inside a paragraph-tag and setting a theme via the forceSetTheme prop
-const HelperComponent = ({ forceSetTheme }: { forceSetTheme?: string }) => {
-  const { setTheme, theme, forcedTheme, resolvedTheme, systemTheme } = useTheme()
+const HelperComponent = ({ forceSetMode }: { forceSetMode?: string }) => {
+  const { setTheme, theme, forcedTheme, resolvedMode, systemMode } = useTheme()
 
   React.useEffect(() => {
-    if (forceSetTheme) {
-      setTheme(forceSetTheme)
+    if (forceSetMode) {
+      setTheme(forceSetMode)
     }
-  }, [forceSetTheme])
+  }, [forceSetMode])
 
   return (
     <>
       <p data-testid="theme">{theme}</p>
       <p data-testid="forcedTheme">{forcedTheme}</p>
-      <p data-testid="resolvedTheme">{resolvedTheme}</p>
-      <p data-testid="systemTheme">{systemTheme}</p>
+      <p data-testid="resolvedTheme">{resolvedMode}</p>
+      <p data-testid="systemTheme">{systemMode}</p>
     </>
   )
 }
@@ -166,7 +166,7 @@ describe('storage', () => {
     act(() => {
       render(
         <ThemeProvider>
-          <HelperComponent forceSetTheme="dark" />
+          <HelperComponent forceSetMode="dark" />
         </ThemeProvider>
       )
     })
@@ -181,7 +181,7 @@ describe('custom storageKey', () => {
     act(() => {
       render(
         <ThemeProvider>
-          <HelperComponent forceSetTheme="light" />
+          <HelperComponent forceSetMode="light" />
         </ThemeProvider>
       )
     })
@@ -193,8 +193,8 @@ describe('custom storageKey', () => {
   test("should save to localStorage with 'custom' when setting prop 'storageKey' to 'customKey'", () => {
     act(() => {
       render(
-        <ThemeProvider storageKey="customKey">
-          <HelperComponent forceSetTheme="light" />
+        <ThemeProvider themeStorageKey="customKey">
+          <HelperComponent forceSetMode="light" />
         </ThemeProvider>
       )
     })
@@ -209,7 +209,7 @@ describe('custom attribute', () => {
     act(() => {
       render(
         <ThemeProvider>
-          <HelperComponent forceSetTheme="light" />
+          <HelperComponent forceSetMode="light" />
         </ThemeProvider>
       )
     })
@@ -221,7 +221,7 @@ describe('custom attribute', () => {
     act(() => {
       render(
         <ThemeProvider attribute="class">
-          <HelperComponent forceSetTheme="light" />
+          <HelperComponent forceSetMode="light" />
         </ThemeProvider>
       )
     })
@@ -233,7 +233,7 @@ describe('custom attribute', () => {
     act(() => {
       render(
         <ThemeProvider attribute="data-example">
-          <HelperComponent forceSetTheme="light" />
+          <HelperComponent forceSetMode="light" />
         </ThemeProvider>
       )
     })
@@ -249,10 +249,10 @@ describe('custom value-mapping', () => {
     act(() => {
       render(
         <ThemeProvider
-          themes={['pink', 'light', 'dark', 'system']}
-          value={{ pink: 'my-pink-theme' }}
+          modes={['pink', 'light', 'dark', 'system']}
+          modeValue={{ pink: 'my-pink-theme' }}
         >
-          <HelperComponent forceSetTheme="pink" />
+          <HelperComponent forceSetMode="pink" />
         </ThemeProvider>
       )
     })
@@ -264,8 +264,8 @@ describe('custom value-mapping', () => {
   test('should allow missing values (attribute)', () => {
     act(() => {
       render(
-        <ThemeProvider value={{ dark: 'dark-mode' }}>
-          <HelperComponent forceSetTheme="light" />
+        <ThemeProvider modeValue={{ dark: 'dark-mode' }}>
+          <HelperComponent forceSetMode="light" />
         </ThemeProvider>
       )
     })
@@ -276,8 +276,8 @@ describe('custom value-mapping', () => {
   test('should allow missing values (class)', () => {
     act(() => {
       render(
-        <ThemeProvider attribute="class" value={{ dark: 'dark-mode' }}>
-          <HelperComponent forceSetTheme="light" />
+        <ThemeProvider attribute="class" modeValue={{ dark: 'dark-mode' }}>
+          <HelperComponent forceSetMode="light" />
         </ThemeProvider>
       )
     })
@@ -398,7 +398,7 @@ describe('color-scheme', () => {
     act(() => {
       render(
         <ThemeProvider defaultTheme="dark">
-          <HelperComponent forceSetTheme="dark" />
+          <HelperComponent forceSetMode="dark" />
         </ThemeProvider>
       )
     })
