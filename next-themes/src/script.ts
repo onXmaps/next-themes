@@ -34,7 +34,7 @@ export const script = (
       el.classList.remove(...classes)
       el.classList.add(mode)
     } else {
-      el.setAttribute("data-mode", mode)
+      el.setAttribute("data-mode", mode) // @TODO This isn't gonna work for custom attributes.
     }
   }
 
