@@ -8,7 +8,7 @@ const colorSchemes = ['light', 'dark']
 const MEDIA = '(prefers-color-scheme: dark)'
 const isServer = typeof window === 'undefined'
 const ThemeContext = React.createContext<UseThemeProps | undefined>(undefined)
-const defaultContext: UseThemeProps = { setMode: _ => {}, modes: [] }
+const defaultContext: UseThemeProps = { setTheme: _ => {}, setMode: _ => {}, modes: [], themes: [] }
 
 export const useTheme = () => React.useContext(ThemeContext) ?? defaultContext
 
@@ -20,28 +20,54 @@ export const ThemeProvider = (props: ThemeProviderProps): React.ReactNode => {
   return <Theme {...props} />
 }
 
+const defaultThemes = ['offroad', 'hunt', 'backcountry', 'fish']
 const defaultModes = ['light', 'dark']
 
 const Theme = ({
+  forcedTheme,
   forcedMode,
   disableTransitionOnChange = false,
   enableSystem = true,
   enableColorScheme = true,
-  themeStorageKey = 'key',
+  themeStorageKey = 'theme',
   modeStorageKey = 'mode',
+  themes = defaultThemes,
   modes = defaultModes,
+  defaultTheme = 'offroad',
   defaultMode = enableSystem ? 'system' : 'light',
   attribute = [
     'data-theme',
     'data-mode',
   ],
-  value,
+  themeValue,
+  modeValue,
   children,
   nonce
 }: ThemeProviderProps) => {
-  const [mode, setModeState] = React.useState(() => getMode(modeStorageKey, defaultMode))
-  const [resolvedMode, setResolvedMode] = React.useState(() => getMode(modeStorageKey))
-  const attrs = !value ? modes : Object.values(value)
+  const [theme, setThemeState] = React.useState(() => getThemeItem(themeStorageKey, defaultTheme))
+  const [mode, setModeState] = React.useState(() => getThemeItem(modeStorageKey, defaultMode))
+  const [resolvedTheme, setResolvedTheme] = React.useState(() => getThemeItem(themeStorageKey))
+  const [resolvedMode, setResolvedMode] = React.useState(() => getThemeItem(modeStorageKey))
+  // const themattrs = !value ? modes : Object.values(value)
+  const attrs = !modeValue ? modes : Object.values(modeValue)
+  
+  const applyTheme = React.useCallback(theme => {
+    let resolved = theme
+    if (!resolved) return
+
+    const name = themeValue ? themeValue[resolved] : resolved
+    const enable = disableTransitionOnChange ? disableAnimation() : null
+    const d = document.documentElement
+    const attr = "data-theme"
+    
+    if (name) {
+      d.setAttribute(attr, name)
+    } else {
+      d.removeAttribute(attr)
+    }
+
+    enable?.()
+  }, [])
 
   const applyMode = React.useCallback(mode => {
     let resolved = mode
@@ -52,25 +78,16 @@ const Theme = ({
       resolved = getSystemMode()
     }
 
-    const name = value ? value[resolved] : resolved
+    const name = modeValue ? modeValue[resolved] : resolved
     const enable = disableTransitionOnChange ? disableAnimation() : null
     const d = document.documentElement
+    const attr = "data-mode"
 
-    const handleAttribute = (attr: Attribute) => {
-      if (attr === 'class') {
-        d.classList.remove(...attrs)
-        if (name) d.classList.add(name)
-      } else if (attr.startsWith('data-')) {
-        if (name) {
-          d.setAttribute(attr, name)
-        } else {
-          d.removeAttribute(attr)
-        }
-      }
+    if (name) {
+      d.setAttribute(attr, name)
+    } else {
+      d.removeAttribute(attr)
     }
-
-    if (Array.isArray(attribute)) attribute.forEach(handleAttribute)
-    else handleAttribute(attribute)
 
     if (enableColorScheme) {
       const fallback = colorSchemes.includes(defaultMode) ? defaultMode : null
@@ -81,6 +98,21 @@ const Theme = ({
 
     enable?.()
   }, [])
+
+  const setTheme = React.useCallback(
+    theme => {
+      const newTheme = typeof theme === 'function' ? theme(theme) : theme
+      setThemeState(newTheme)
+
+      // Save to storage
+      try {
+        localStorage.setItem(themeStorageKey, newTheme)
+      } catch (e) {
+        // Unsupported
+      }
+    },
+    [forcedTheme]
+  )
 
   const setMode = React.useCallback(
     mode => {
@@ -123,49 +155,65 @@ const Theme = ({
   // localStorage event handling
   React.useEffect(() => {
     const handleStorage = (e: StorageEvent) => {
-      if (e.key !== modeStorageKey) {
+      if (e.key !== themeStorageKey || e.key !== modeStorageKey) {
         return
       }
 
       // If default theme set, use it if localstorage === null (happens on local storage manual deletion)
-      const theme = e.newValue || defaultMode
+      const theme = e.newValue || defaultTheme
+      setTheme(theme)
+      
+      const mode = e.newValue || defaultMode
       setMode(mode)
     }
 
     window.addEventListener('storage', handleStorage)
     return () => window.removeEventListener('storage', handleStorage)
-  }, [setMode])
+  }, [setTheme, setMode])
 
   // Whenever theme or forcedTheme changes, apply it
   React.useEffect(() => {
+    applyTheme(forcedTheme ?? theme)
+  }, [theme, forcedTheme])
+  
+  React.useEffect(() => {
     applyMode(forcedMode ?? mode)
-  }, [forcedMode, mode])
+  }, [mode, forcedMode])
 
   const providerValue = React.useMemo(
     () => ({
+      theme,
       mode,
-      modes,
+      setTheme,
       setMode,
+      forcedTheme,
       forcedMode,
+      resolvedTheme,
       resolvedMode: mode === 'system' ? resolvedMode : mode,
-      themes: enableSystem ? [...modes, 'system'] : modes,
+      themes,
+      modes: enableSystem ? [...modes, 'system'] : modes,
       systemTheme: (enableSystem ? resolvedMode : undefined) as 'light' | 'dark' | undefined
     }),
-    [mode, setMode, forcedMode, resolvedMode, enableSystem, modes]
+    [theme, mode, setTheme, setMode, forcedTheme, forcedMode, resolvedTheme, resolvedMode, enableSystem, modes, themes]
   )
 
   return (
     <ThemeContext.Provider value={providerValue}>
       <ThemeScript
         {...{
+          forcedTheme,
           forcedMode,
+          themeStorageKey,
           modeStorageKey,
           attribute,
           enableSystem,
           enableColorScheme,
+          defaultTheme,
           defaultMode,
-          value,
+          themeValue,
+          modeValue,
           modes,
+          themes,
           nonce
         }}
       />
@@ -177,25 +225,33 @@ const Theme = ({
 
 const ThemeScript = React.memo(
   ({
+    forcedTheme,
     forcedMode,
     themeStorageKey,
     modeStorageKey,
     attribute,
     enableSystem,
     enableColorScheme,
+    defaultTheme,
     defaultMode,
-    value,
+    themeValue,
+    modeValue,
+    themes,
     modes,
     nonce
-  }: Omit<ThemeProviderProps, 'children'> & { defaultMode: string }) => {
+  }: Omit<ThemeProviderProps, 'children'> & { defaultTheme: string, defaultMode: string }) => {
     const scriptArgs = JSON.stringify([
       attribute,
       themeStorageKey,
       modeStorageKey,
+      defaultTheme,
       defaultMode,
+      forcedTheme,
       forcedMode,
+      themes,
       modes,
-      value,
+      themeValue,
+      modeValue,
       enableSystem,
       enableColorScheme
     ]).slice(1, -1)
@@ -211,15 +267,15 @@ const ThemeScript = React.memo(
 )
 
 // Helpers
-const getMode = (key: string, fallback?: string) => {
+const getThemeItem = (key: string, fallback?: string) => {
   if (isServer) return undefined
-  let mode
+  let themeItem
   try {
-    mode = localStorage.getItem(key) || undefined
+    themeItem = localStorage.getItem(key) || undefined
   } catch (e) {
     // Unsupported
   }
-  return mode || fallback
+  return themeItem || fallback
 }
 
 const disableAnimation = () => {

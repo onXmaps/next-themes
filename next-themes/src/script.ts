@@ -58,6 +58,8 @@ export const script = (
     try {
       const themeName = localStorage.getItem(themeStorageKey) || defaultTheme
       updateDOM({ theme: themeName })
+    } catch (e) {
+      //
     }
   }
 
