@@ -12,7 +12,9 @@
     "react-dom": "18.2.0"
   },
   "main": "index.js",
-  "devDependencies": {},
+  "devDependencies": {
+    "tailwindcss": "^3.4.1"
+  },
   "author": "",
   "license": "ISC",
   "description": ""
