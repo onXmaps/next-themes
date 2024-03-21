@@ -12,7 +12,7 @@ export const script = (
   enableColorScheme
 ) => {
   const el = document.documentElement
-  const themes = ['offroad', 'hunt', 'backcountry', 'fish']
+  const systemThemes = ['offroad', 'hunt', 'backcountry', 'fish']
   const systemModes = ['light', 'dark']
   const isClass = attribute === 'class'
   const classes = isClass && value ? modes.map(t => value[t] || t) : modes

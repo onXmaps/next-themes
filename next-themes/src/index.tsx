@@ -48,7 +48,7 @@ const Theme = ({
   const [mode, setModeState] = React.useState(() => getThemeItem(modeStorageKey, defaultMode))
   const [resolvedTheme, setResolvedTheme] = React.useState(() => getThemeItem(themeStorageKey))
   const [resolvedMode, setResolvedMode] = React.useState(() => getThemeItem(modeStorageKey))
-  // const themattrs = !value ? modes : Object.values(value)
+  // const attrs = !value ? modes : Object.values(value)
   const attrs = !modeValue ? modes : Object.values(modeValue)
   
   const applyTheme = React.useCallback(theme => {
@@ -58,7 +58,7 @@ const Theme = ({
     const name = themeValue ? themeValue[resolved] : resolved
     const enable = disableTransitionOnChange ? disableAnimation() : null
     const d = document.documentElement
-    const attr = "data-theme"
+    const attr = "data-theme" // @TODO add support for custom data attributes
     
     if (name) {
       d.setAttribute(attr, name)
@@ -81,7 +81,9 @@ const Theme = ({
     const name = modeValue ? modeValue[resolved] : resolved
     const enable = disableTransitionOnChange ? disableAnimation() : null
     const d = document.documentElement
-    const attr = "data-mode"
+    const attr = "data-mode" // @TODO add support for custom data attributes
+
+    // @TODO Add back support for classList-based light/dark mode
 
     if (name) {
       d.setAttribute(attr, name)
