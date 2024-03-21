@@ -3,14 +3,16 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 const Index = () => {
-  const { theme, setTheme } = useTheme()
+  const { mode, setMode } = useTheme()
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
+
+  // @TODO Fix this example; forced dark/light not working
 
   return (
     <div>
       <h1>next-themes Example</h1>
-      <select value={theme} onChange={e => setTheme(e.target.value)} data-test-id="theme-selector">
+      <select value={mode} onChange={e => setMode(e.target.value)} data-test-id="theme-selector">
         <option value="system">System</option>
         {mounted && (
           <>

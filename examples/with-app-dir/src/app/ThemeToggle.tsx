@@ -3,7 +3,7 @@
 import { useTheme } from 'next-themes'
 
 export function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme()
+  const { resolvedMode, setMode } = useTheme()
   return (
     <>
       <label htmlFor="theme-select">Theme:</label>
@@ -20,7 +20,7 @@ export function ThemeToggle() {
       <button
         className="mt-16 px-4 py-2 text-white dark:text-black bg-black dark:bg-white font-semibold rounded-md"
         onClick={() => {
-          setTheme(resolvedTheme === 'light' ? 'dark' : 'light')
+          setMode(resolvedMode === 'light' ? 'dark' : 'light')
         }}
       >
         Change Theme
@@ -29,7 +29,7 @@ export function ThemeToggle() {
       <button
         className="mt-16 px-4 py-2 text-white dark:text-black bg-black dark:bg-white font-semibold rounded-md"
         onClick={() => {
-          setTheme(resolvedTheme === 'light' ? 'dark' : 'light')
+          setMode(resolvedMode === 'light' ? 'dark' : 'light')
         }}
       >
         Change Mode

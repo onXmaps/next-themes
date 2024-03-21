@@ -8,7 +8,7 @@ const colorSchemes = ['light', 'dark']
 const MEDIA = '(prefers-color-scheme: dark)'
 const isServer = typeof window === 'undefined'
 const ThemeContext = React.createContext<UseThemeProps | undefined>(undefined)
-const defaultContext: UseThemeProps = { setTheme: _ => {}, themes: [] }
+const defaultContext: UseThemeProps = { setMode: _ => {}, modes: [] }
 
 export const useTheme = () => React.useContext(ThemeContext) ?? defaultContext
 
@@ -20,32 +20,32 @@ export const ThemeProvider = (props: ThemeProviderProps): React.ReactNode => {
   return <Theme {...props} />
 }
 
-const defaultThemes = ['light', 'dark']
+const defaultModes = ['light', 'dark']
 
 const Theme = ({
-  forcedTheme,
+  forcedMode,
   disableTransitionOnChange = false,
   enableSystem = true,
   enableColorScheme = true,
-  storageKey = 'theme',
-  themes = defaultThemes,
-  defaultTheme = enableSystem ? 'system' : 'light',
-  attribute = 'data-theme',
+  storageKey = 'mode',
+  modes = defaultModes,
+  defaultMode = enableSystem ? 'system' : 'light',
+  attribute = 'data-mode',
   value,
   children,
   nonce
 }: ThemeProviderProps) => {
-  const [theme, setThemeState] = React.useState(() => getTheme(storageKey, defaultTheme))
-  const [resolvedTheme, setResolvedTheme] = React.useState(() => getTheme(storageKey))
-  const attrs = !value ? themes : Object.values(value)
+  const [mode, setModeState] = React.useState(() => getMode(storageKey, defaultMode))
+  const [resolvedMode, setResolvedMode] = React.useState(() => getMode(storageKey))
+  const attrs = !value ? modes : Object.values(value)
 
-  const applyTheme = React.useCallback(theme => {
-    let resolved = theme
+  const applyMode = React.useCallback(mode => {
+    let resolved = mode
     if (!resolved) return
 
-    // If theme is system, resolve it before setting theme
-    if (theme === 'system' && enableSystem) {
-      resolved = getSystemTheme()
+    // If mode is system, resolve it before setting mode
+    if (mode === 'system' && enableSystem) {
+      resolved = getSystemMode()
     }
 
     const name = value ? value[resolved] : resolved
@@ -69,7 +69,7 @@ const Theme = ({
     else handleAttribute(attribute)
 
     if (enableColorScheme) {
-      const fallback = colorSchemes.includes(defaultTheme) ? defaultTheme : null
+      const fallback = colorSchemes.includes(defaultMode) ? defaultMode : null
       const colorScheme = colorSchemes.includes(resolved) ? resolved : fallback
       // @ts-ignore
       d.style.colorScheme = colorScheme
@@ -78,10 +78,10 @@ const Theme = ({
     enable?.()
   }, [])
 
-  const setTheme = React.useCallback(
+  const setMode = React.useCallback(
     theme => {
       const newTheme = typeof theme === 'function' ? theme(theme) : theme
-      setThemeState(newTheme)
+      setModeState(newTheme)
 
       // Save to storage
       try {
@@ -90,19 +90,19 @@ const Theme = ({
         // Unsupported
       }
     },
-    [forcedTheme]
+    [forcedMode]
   )
 
   const handleMediaQuery = React.useCallback(
     (e: MediaQueryListEvent | MediaQueryList) => {
-      const resolved = getSystemTheme(e)
-      setResolvedTheme(resolved)
+      const resolved = getSystemMode(e)
+      setResolvedMode(resolved)
 
-      if (theme === 'system' && enableSystem && !forcedTheme) {
-        applyTheme('system')
+      if (mode === 'system' && enableSystem && !forcedMode) {
+        applyMode('system')
       }
     },
-    [theme, forcedTheme]
+    [mode, forcedMode]
   )
 
   // Always listen to System preference
@@ -124,43 +124,44 @@ const Theme = ({
       }
 
       // If default theme set, use it if localstorage === null (happens on local storage manual deletion)
-      const theme = e.newValue || defaultTheme
-      setTheme(theme)
+      const theme = e.newValue || defaultMode
+      setMode(mode)
     }
 
     window.addEventListener('storage', handleStorage)
     return () => window.removeEventListener('storage', handleStorage)
-  }, [setTheme])
+  }, [setMode])
 
   // Whenever theme or forcedTheme changes, apply it
   React.useEffect(() => {
-    applyTheme(forcedTheme ?? theme)
-  }, [forcedTheme, theme])
+    applyMode(forcedMode ?? mode)
+  }, [forcedMode, mode])
 
   const providerValue = React.useMemo(
     () => ({
-      theme,
-      setTheme,
-      forcedTheme,
-      resolvedTheme: theme === 'system' ? resolvedTheme : theme,
-      themes: enableSystem ? [...themes, 'system'] : themes,
-      systemTheme: (enableSystem ? resolvedTheme : undefined) as 'light' | 'dark' | undefined
+      mode,
+      modes,
+      setMode,
+      forcedMode,
+      resolvedMode: mode === 'system' ? resolvedMode : mode,
+      themes: enableSystem ? [...modes, 'system'] : modes,
+      systemTheme: (enableSystem ? resolvedMode : undefined) as 'light' | 'dark' | undefined
     }),
-    [theme, setTheme, forcedTheme, resolvedTheme, enableSystem, themes]
+    [mode, setMode, forcedMode, resolvedMode, enableSystem, modes]
   )
 
   return (
     <ThemeContext.Provider value={providerValue}>
       <ThemeScript
         {...{
-          forcedTheme,
+          forcedMode,
           storageKey,
           attribute,
           enableSystem,
           enableColorScheme,
-          defaultTheme,
+          defaultMode,
           value,
-          themes,
+          modes,
           nonce
         }}
       />
@@ -172,22 +173,22 @@ const Theme = ({
 
 const ThemeScript = React.memo(
   ({
-    forcedTheme,
+    forcedMode,
     storageKey,
     attribute,
     enableSystem,
     enableColorScheme,
-    defaultTheme,
+    defaultMode,
     value,
-    themes,
+    modes,
     nonce
-  }: Omit<ThemeProviderProps, 'children'> & { defaultTheme: string }) => {
+  }: Omit<ThemeProviderProps, 'children'> & { defaultMode: string }) => {
     const scriptArgs = JSON.stringify([
       attribute,
       storageKey,
-      defaultTheme,
-      forcedTheme,
-      themes,
+      defaultMode,
+      forcedMode,
+      modes,
       value,
       enableSystem,
       enableColorScheme
@@ -204,15 +205,15 @@ const ThemeScript = React.memo(
 )
 
 // Helpers
-const getTheme = (key: string, fallback?: string) => {
+const getMode = (key: string, fallback?: string) => {
   if (isServer) return undefined
-  let theme
+  let mode
   try {
-    theme = localStorage.getItem(key) || undefined
+    mode = localStorage.getItem(key) || undefined
   } catch (e) {
     // Unsupported
   }
-  return theme || fallback
+  return mode || fallback
 }
 
 const disableAnimation = () => {
@@ -235,9 +236,9 @@ const disableAnimation = () => {
   }
 }
 
-const getSystemTheme = (e?: MediaQueryList | MediaQueryListEvent) => {
+const getSystemMode = (e?: MediaQueryList | MediaQueryListEvent) => {
   if (!e) e = window.matchMedia(MEDIA)
   const isDark = e.matches
-  const systemTheme = isDark ? 'dark' : 'light'
-  return systemTheme
+  const systemMode = isDark ? 'dark' : 'light'
+  return systemMode
 }

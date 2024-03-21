@@ -1,47 +1,47 @@
 export const script = (
   attribute,
   storageKey,
-  defaultTheme,
-  forcedTheme,
-  themes,
+  defaultMode,
+  forcedMode,
+  modes,
   value,
   enableSystem,
   enableColorScheme
 ) => {
   const el = document.documentElement
-  const systemThemes = ['light', 'dark']
+  const systemModes = ['light', 'dark']
   const isClass = attribute === 'class'
-  const classes = isClass && value ? themes.map(t => value[t] || t) : themes
+  const classes = isClass && value ? modes.map(t => value[t] || t) : modes
 
-  function updateDOM(theme: string) {
+  function updateDOM(mode: string) {
     if (isClass) {
       el.classList.remove(...classes)
-      el.classList.add(theme)
+      el.classList.add(mode)
     } else {
-      el.setAttribute(attribute, theme)
+      el.setAttribute(attribute, mode)
     }
 
-    setColorScheme(theme)
+    setColorScheme(mode)
   }
 
-  function setColorScheme(theme: string) {
-    if (enableColorScheme && systemThemes.includes(theme)) {
-      el.style.colorScheme = theme
+  function setColorScheme(mode: string) {
+    if (enableColorScheme && systemModes.includes(mode)) {
+      el.style.colorScheme = mode
     }
   }
 
-  function getSystemTheme() {
+  function getSystemMode() {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   }
 
-  if (forcedTheme) {
-    updateDOM(forcedTheme)
+  if (forcedMode) {
+    updateDOM(forcedMode)
   } else {
     try {
-      const themeName = localStorage.getItem(storageKey) || defaultTheme
-      const isSystem = enableSystem && themeName === 'system'
-      const theme = isSystem ? getSystemTheme() : themeName
-      updateDOM(theme)
+      const modeName = localStorage.getItem(storageKey) || defaultMode
+      const isSystem = enableSystem && modeName === 'system'
+      const mode = isSystem ? getSystemMode() : modeName
+      updateDOM(mode)
     } catch (e) {
       //
     }

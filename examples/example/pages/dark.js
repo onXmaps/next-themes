@@ -4,5 +4,5 @@ const Page = () => {
   return <Link href="/">Go back home</Link>
 }
 
-Page.theme = 'dark'
+Page.mode = 'dark'
 export default Page
