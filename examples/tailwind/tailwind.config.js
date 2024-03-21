@@ -4,5 +4,5 @@ module.exports = {
     purgeLayersByDefault: true
   },
   content: ['./components/**/*.{js,ts,jsx,tsx}', './pages/**/*.{js,ts,jsx,tsx}'],
-  darkMode: 'class'
+  darkMode: ['selector', '[data-mode="dark"]'],
 }
