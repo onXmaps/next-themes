@@ -16,7 +16,7 @@
     }
   },
   "scripts": {
-    "prepublish": "pnpm build",
+    "prepublish": "npm run build",
     "build": "tsup",
     "dev": "tsup --watch",
     "test": "vitest run __tests__"
@@ -31,6 +31,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/pacocoursey/next-themes.git"
-  }
+    "url": "git+https://github.com/onXmaps/next-themes.git"
+  },
+  "description": "An abstraction for themes in your React app.",
+  "homepage": "https://github.com/onXmaps/next-themes#readme"
 }

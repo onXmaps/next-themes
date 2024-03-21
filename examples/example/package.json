@@ -8,8 +8,12 @@
   },
   "dependencies": {
     "next": "^13.4.19",
-    "next-themes": "workspace:*",
     "react": "18.2.0",
     "react-dom": "18.2.0"
-  }
+  },
+  "main": "index.js",
+  "devDependencies": {},
+  "author": "",
+  "license": "ISC",
+  "description": ""
 }

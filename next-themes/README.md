@@ -18,9 +18,7 @@ Check out the [Live Example](https://next-themes-example.vercel.app/) to try it 
 ## Install
 
 ```bash
-$ npm install next-themes
-# or
-$ yarn add next-themes
+npm install @onxmaps/next-themes
 ```
 
 ## Use
